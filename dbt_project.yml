@@ -34,5 +34,10 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   jaffle_shop:
       # Applies to all files under models/example/
-      example:
+      staging:
           materialized: view
+          +tags: ["base", "interview_task"]
+
+      marts:
+        materialized: table
+        +tags: ["marts", "jaffle_orders"]
