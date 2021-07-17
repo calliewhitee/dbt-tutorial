@@ -1,1 +1,18 @@
-s
+version: 2
+
+sources:
+  - name: interview_task
+    database: 'dbt-public'
+    tables:
+      - name: addresses
+        description: '{{ doc("addresses_base") }}'
+        identifier: addresses
+      - name: devices
+        description: '{{ doc("devices_base") }}'
+        identifier: devices
+      - name: orders
+        description: '{{ doc("orders_base") }}'
+        identifier: orders
+      - name: payments
+        description: '{{ doc("payments_base") }}'
+        identifier: payments

@@ -1,1 +1,107 @@
-s
+version: 2
+
+models:
+    - name: addresses_base
+      description: "Base file that pulls raw data from
+        dbt-public.interview_task.addresses from a public
+        BigQuery database."
+      columns:
+          - name: order_id
+            tests:
+              - unique
+              - not_null
+          - name: user_id
+            tests:
+              - not_null
+          - name: name
+          - name: address
+            tests:
+              - not_null
+
+    - name: devices_base
+      description: "Base file that pulls raw data from
+        dbt-public.interview_task.addresses from a public
+        BigQuery database."
+      tests:
+        - unique:
+            column_name: "concat(type_id, updated_at)"
+      columns:
+          - name: type
+            tests:
+              - not_null
+          - name: device
+            tests:
+              - accepted_values: 
+                  values: ['web', 'mobile', 'tablet', 'android', 'ios-app']
+          - name: created_at
+          - name: updated_at
+          - name: type_id
+
+    - name: orders_base
+      description: "Base file that pulls raw data from
+        dbt-public.interview_task.addresses from a public
+        BigQuery database."
+      columns:
+          - name: order_id
+            tests:
+              - not_null
+              - unique
+          - name: user_id
+            tests:
+              - not_null
+          - name: created_at
+          - name: updated_at
+          - name: shipped_at
+          - name: currency
+            tests:
+              - accepted_values:
+                  values: ['USD', 'GBP', 'EUR']
+          - name: status
+          - name: shipping_method
+          - name: amount_total_cents
+
+    - name: payments_base
+      description: "Base file that pulls raw data from
+        dbt-public.interview_task.addresses from a public
+        BigQuery database."
+      columns:
+          - name: payment_id
+            tests:
+              - not_null
+              - unique
+          - name: order_id
+            tests:
+              - not_null
+          - name: created_at
+          - name: status
+            tests:
+              - accepted_values:
+                  values: ['paid', 'pending', 'shipped', 'cancelled', 'completed']
+          - name: tax_amount_cents
+          - name: amount_cents
+          - name: amount_shipping_cents
+          - name: payment_type
+
+    - name: stg_payments
+      description: "Staging file that pulls transforms the raw payment
+        data into consistent, understandable format by reporting dollars."
+      tests:
+        - unique:
+            column_name: "concat(order_id, gross_total_amount)"
+            #It would be better if this was a unique order_id where status = completed
+            #but would require the dbt_utils package
+      columns:
+        - name: order_id
+          tests:
+            - not_null
+        - name: gross_amount
+        - name: gross_shipping_amount
+        - name: gross_tax_amount
+        - name: gross_total_amount
+            #I would add a test to ensure that gross_total_amount
+            # is always larger than the individual given amounts
+            # just in case a number is provided as a negative. Or
+            # if someone changes the code to sum the cents fields
+            # instead of the transformed dollar fields.
+            #Similarly, I could add individual tests to ensure
+            # all the columns are represented as positive integers.
